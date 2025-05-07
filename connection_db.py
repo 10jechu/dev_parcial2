@@ -7,8 +7,11 @@ from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-# Usar SQLite para pruebas locales
-DATABASE_URL = "sqlite+aiosqlite:///database.db"
+DATABASE_URL = (
+    f"postgresql+asyncpg://{os.getenv('POSTGRESQL_ADDON_USER')}:{os.getenv('POSTGRESQL_ADDON_PASSWORD')}"
+    f"@{os.getenv('POSTGRESQL_ADDON_HOST')}:{os.getenv('POSTGRESQL_ADDON_PORT')}/"
+    f"{os.getenv('POSTGRESQL_ADDON_DB')}"
+)
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
