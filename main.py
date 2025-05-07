@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 from data.models import UserSQL, TaskSQL, UserStatus, TaskStatus, UserBase, TaskBase, UpdatedUser, TaskUpdated
 from connection_db import get_db_session, init_db
 from sqlmodel.ext.asyncio.session import AsyncSession
-import operations_db as crud  # Cambiado de 'operations' a 'operations_db'
+import operations_db as crud
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -106,6 +107,8 @@ async def update_task_status_endpoint(
         raise HTTPException(status_code=404, detail="Task not found")
     return updated_task
 
+# Forzar despliegue para Clever Cloud
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8001)
+    uvicorn.run(app, host="127.0.0.1", port=8002)
