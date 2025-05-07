@@ -1,0 +1,9 @@
+{
+  "build": {
+    "type": "python",
+    "version": "3.12"
+  },
+  "deploy": {
+    "script": "uvicorn main:app --host 0.0.0.0 --port $PORT"
+  }
+}
