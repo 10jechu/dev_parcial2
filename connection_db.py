@@ -24,18 +24,18 @@ DATABASE_URL = (
 
 # Configurar SSL sin verificación estricta
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-ssl_context.check_hostname = False  # Deshabilitar verificación del hostname
-ssl_context.verify_mode = ssl.CERT_NONE  # Deshabilitar verificación del certificado
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
 
 # Crear el motor con la configuración de SSL y pool limitado
 engine = create_async_engine(
     DATABASE_URL,
     echo=True,
     connect_args={"ssl": ssl_context},
-    pool_size=2,  # Máximo 2 conexiones en el pool
-    max_overflow=2,  # Máximo 2 conexiones adicionales si se necesita
-    pool_timeout=30,  # Tiempo de espera para obtener una conexión
-    pool_pre_ping=True  # Verifica que las conexiones estén vivas antes de usarlas
+    pool_size=1,
+    max_overflow=0,
+    pool_timeout=10,
+    pool_pre_ping=True
 )
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
