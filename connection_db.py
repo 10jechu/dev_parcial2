@@ -22,16 +22,20 @@ DATABASE_URL = (
     f"{POSTGRESQL_ADDON_DB}"
 )
 
-# Configurar SSL sin verificación estricta del certificado
+# Configurar SSL sin verificación estricta
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-ssl_context.verify_mode = ssl.CERT_NONE  # Deshabilitar la verificación del certificado
-ssl_context.check_hostname = False  # Deshabilitar la verificación del hostname
+ssl_context.check_hostname = False  # Deshabilitar verificación del hostname
+ssl_context.verify_mode = ssl.CERT_NONE  # Deshabilitar verificación del certificado
 
-# Crear el motor con la configuración de SSL
+# Crear el motor con la configuración de SSL y pool limitado
 engine = create_async_engine(
     DATABASE_URL,
     echo=True,
-    connect_args={"ssl": ssl_context}
+    connect_args={"ssl": ssl_context},
+    pool_size=2,  # Máximo 2 conexiones en el pool
+    max_overflow=2,  # Máximo 2 conexiones adicionales si se necesita
+    pool_timeout=30,  # Tiempo de espera para obtener una conexión
+    pool_pre_ping=True  # Verifica que las conexiones estén vivas antes de usarlas
 )
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
@@ -40,5 +44,9 @@ async def get_db_session() -> AsyncSession:
         yield session
 
 async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.create_all)
+    except Exception as e:
+        print(f"Error al inicializar la base de datos: {e}")
+        raise
